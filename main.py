@@ -35,7 +35,7 @@ with sq.connect('deanary.db') as con:
     
     cur.execute("""CREATE TABLE IF NOT EXISTS syllabus(
         id_syllabus INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_speciality INTEGER NOT NULL,
+        id_speciality INTEGER,
         id_subject INTEGER NOT NULL,
         id_submission_form INTEGER NOT NULL,
         number_of_lecture_hours INTEGER,
@@ -69,7 +69,7 @@ with sq.connect('deanary.db') as con:
         speciality TEXT NOT NULL,
         subjects TEXT NOT NULL,
         submission_form VARCHAR NOT NULL,
-        grade INTEGER NOT NULL,
+        grade INTEGER,
         FOREIGN KEY (subjects) REFERENCES subjects (name),
         FOREIGN KEY (submission_form) REFERENCES submission_form (name)
     )""")
@@ -82,67 +82,67 @@ with sq.connect('deanary.db') as con:
     # cur.executemany("INSERT INTO applicants VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", info_applicants)
     # cur.executemany("INSERT INTO study_card VALUES (?, ?, ?, ?, ?, ?, ?)", info_study_card)
 
-    # # Запросы на выборку данных
+    # Запросы на выборку данных
 
-    # # 1. Вывести список всех студентов, зачисленных на факультет, с указанием номера группы.
-    # cur.execute("SELECT * FROM study_card")
-    # all_students = cur.fetchall()
-    # print(all_students)
+    # 1. Вывести список всех студентов, зачисленных на факультет, с указанием номера группы.
+    cur.execute("SELECT * FROM study_card")
+    all_students = cur.fetchall()
+    print(all_students)
+    # 2. Вывести список всех специальностей факультета и количество студентов, обучающихся по каждой из них.
+    cur.execute("""SELECT id_speciality, name, 
+    (SELECT COUNT(applicants.speciality) FROM applicants 
+    WHERE applicants.speciality = specialities.name) 
+    FROM specialities""")
+    spec_students = cur.fetchall()
+    print(spec_students)
 
-    # # 2. Вывести список всех специальностей факультета и количество студентов, обучающихся по каждой из них.
-    # cur.execute("""SELECT id_speciality, name, 
-    # (SELECT COUNT(applicants.speciality) FROM applicants 
-    # WHERE applicants.speciality = specialities.name) 
-    # FROM specialities""")
-    # spec_students = cur.fetchall()
-    # print(spec_students)
+    # 3. Вывести список всех кафедр факультета и количество студентов, обучающихся на каждой кафедре.
+    cur.execute("""SELECT *, 
+    (SELECT (SELECT COUNT(applicants.speciality) FROM applicants 
+    WHERE applicants.speciality =specialities.name) FROM specialities
+    WHERE specialities.id_departments = departments.id_departments)
+    FROM departments
+    """)
+    deps_studs =  cur.fetchall()
+    print(deps_studs)
 
-    # # 3. Вывести список всех кафедр факультета и количество студентов, обучающихся на каждой кафедре.
-    # cur.execute("""SELECT *, 
-    # (SELECT (SELECT COUNT(applicants.speciality) FROM applicants 
-    # WHERE applicants.speciality =specialities.name) FROM specialities
-    # WHERE specialities.id_departments = departments.id_departments)
-    # FROM departments
-    # """)
-    # deps_studs =  cur.fetchall()
-    # print(deps_studs)
+    # 4. Вывести список всех предметов и количество часов, выделенных на каждый предмет в учебном плане каждой специальности.
+    cur.execute("""SELECT *, 
+    (SELECT (number_of_lecture_hours + number_of_practical_hours + number_of_laboratory_hours) 
+    FROM syllabus WHERE syllabus.id_subject = subjects.id_subject) 
+    FROM subjects
+    """)
+    print(cur.fetchall())
 
-    # # 4. Вывести список всех предметов и количество часов, выделенных на каждый предмет в учебном плане каждой специальности.
-    # cur.execute("""SELECT *, 
-    # (SELECT (number_of_lecture_hours + number_of_practical_hours + number_of_laboratory_hours) 
-    # FROM syllabus WHERE syllabus.id_subject = subjects.id_subject) 
-    # FROM subjects
-    # """)
-    # print(cur.fetchall())
+    # 5. Вывести список всех студентов, у которых есть неудовлетворительные оценки (меньше 4) по любому предмету.
+    cur.execute("SELECT id_study_card, FIO_student, grade FROM study_card WHERE grade < 4")
+    print(cur.fetchall()) 
 
-    # # 5. Вывести список всех студентов, у которых есть неудовлетворительные оценки (меньше 4) по любому предмету.
-    # cur.execute("SELECT id_study_card, FIO_student, grade FROM study_card WHERE grade < 4")
-    # print(cur.fetchall()) 
+    # 6. Вывести список всех предметов, которые изучают студенты первого курса.
+    cur.execute("SELECT * FROM study_card WHERE groupp LIKE '1%'")
+    print(cur.fetchall())
 
-    # # 6. Вывести список всех предметов, которые изучают студенты первого курса.
-    # cur.execute("SELECT * FROM study_card WHERE groupp LIKE '1%'")
-    # print(cur.fetchall())
+    # 7. Вывести список всех студентов, которые сдают курсовую работу в этом семестре.
+    cur.execute("SELECT * FROM study_card WHERE submission_form = 'Курсовая работа'")
+    print(cur.fetchall())
 
-    # # 7. Вывести список всех студентов, которые сдают курсовую работу в этом семестре.
-    # cur.execute("SELECT * FROM study_card WHERE submission_form = 'Курсовая работа'")
-    # print(cur.fetchall())
+    # 8. Вывести список всех абитуриентов, зачисленных на специальность "Информатика и вычислительная техника".
+    # вместо специальности "Информатика и вычислительная техника" - "ИС"
+    cur.execute("SELECT * FROM applicants WHERE speciality = 'ИС'")
+    print(cur.fetchall())
 
-    # # 8. Вывести список всех абитуриентов, зачисленных на специальность "Информатика и вычислительная техника".
-    # # вместо специальности "Информатика и вычислительная техника" - "ИС"
-    # cur.execute("SELECT * FROM applicants WHERE speciality = 'ИС'")
-    # print(cur.fetchall())
-
-    # # 9. Вывести список всех предметов, которые изучают студенты группы 101.
-    # # вместо группы 101 - группа 11
-    # cur.execute("SELECT subjects FROM study_card WHERE groupp = 11")
-    # print(cur.fetchall())
+    # 9. Вывести список всех предметов, которые изучают студенты группы 101.
+    # вместо группы 101 - группа 11
+    cur.execute("SELECT subjects FROM study_card WHERE groupp = 11")
+    print(cur.fetchall())
     
-    # # 10. Вывести список студентов и их оценки за все предметы на специальности "Программная инженерия"
-    # # вместо программная инженерия - ПЛА
-    # cur.execute("SELECT id_study_card, FIO_student, speciality, subjects, grade FROM study_card WHERE speciality = 'ПЛА'")
-    # print(cur.fetchall())
+    # 10. Вывести список студенто и их оценки за все предметы на специальности "Программная инженерия"
+    # вместо программная инженерия - ПЛА
+    cur.execute("SELECT id_study_card, FIO_student, speciality, subjects, grade FROM study_card WHERE speciality = 'ПЛА'")
+    print(cur.fetchall())
 
-        # SQL-запросы на обновление данных в БД:
+    
+    # SQL-запросы на обновление данных в БД:
 
     # Обновление названия факультета с id=1 на "Новый факультет"
     cur.execute("UPDATE faculties SET name = 'Новый факультет' WHERE id_faculty = 1") #1
@@ -194,7 +194,7 @@ with sq.connect('deanary.db') as con:
     
     # . Обновить количество лабораторных часов на предмете "Физика" для специальности "Физика и информатика" на 30
     cur.execute("UPDATE SET WHERE") #17
-    
+
     # SQL-запросы на удаление данных из БД
     cur.execute("DELETE FROM applicants WHERE data_postupleniya < '2021-01-01' ") # 1
     cur.execute("DELETE FROM syllabus WHERE id_speciality IS NULL") # 2
@@ -204,3 +204,5 @@ with sq.connect('deanary.db') as con:
     cur.execute("DELETE FROM study_card WHERE subjects = 'математика' AND submission_form = 'Экзамен'") # 6
     cur.execute("DELETE FROM study_card WHERE speciality IN (SELECT name FROM specialities WHERE id_departments =4)") # 7
     cur.execute("DELETE FROM study_card WHERE grade = 2 OR grade IS NULL") # 8
+
+    
