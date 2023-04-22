@@ -142,15 +142,65 @@ with sq.connect('deanary.db') as con:
     # cur.execute("SELECT id_study_card, FIO_student, speciality, subjects, grade FROM study_card WHERE speciality = 'ПЛА'")
     # print(cur.fetchall())
 
-    # # SQL-запросы на обновление данных в БД:
-    # cur.execute("UPDATE faculties SET name = 'Новый факультет' WHERE id_faculty = 1") #1
-    # cur.execute("UPDATE departments SET name = 'Новая кафедра' WHERE id_departments = 2") #2
-    # cur.execute("UPDATE specialities SET name = 'Новая специальность' WHERE id_speciality = 3") #3
-    # cur.execute("UPDATE subjects SET name = 'Новый предмет' WHERE id_subject = 4") #4
-    # cur.execute("UPDATE submission_form SET name = 'Новая форма сдачи' WHERE id_submission_form = 5") #5
-    # cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 30  WHERE id_syllabus = 6") #6
-    # cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 10 WHERE number_of_lecture_hours > 30") #10
-    # cur.execute("UPDATE applicants SET name = 'Виктор' AND surname = 'Баранов' WHERE id_applicant = 7") #11
-    # cur.execute("UPDATE study_card SET grade = 5  WHERE submission_form = 'Взятка' AND FIO_student = 'Клименко Олег Юрьевич' ") #13
-    # cur.execute("UPDATE study_card SET speciality = 'Специальность' WHERE speciality = (SELECT name FROM specialities WHERE id_speciality = 2)") #14
-    # cur.execute("UPDATE study_card SET grade = 2  WHERE FIO_student LIKE 'Иван' AND subjects = 'математика' ") #15
+        # SQL-запросы на обновление данных в БД:
+
+    # Обновление названия факультета с id=1 на "Новый факультет"
+    cur.execute("UPDATE faculties SET name = 'Новый факультет' WHERE id_faculty = 1") #1
+    
+    # Обновление названия кафедры с id=2 на "Новая кафедра"
+    cur.execute("UPDATE departments SET name = 'Новая кафедра' WHERE id_departments = 2") #2
+    
+    # Обновление названия специальности с id=3 на "Новая специальность"
+    cur.execute("UPDATE specialities SET name = 'Новая специальность' WHERE id_speciality = 3") #3
+    
+    # Обновление названия предмета с id=4 на "Новый предмет"
+    cur.execute("UPDATE subjects SET name = 'Новый предмет' WHERE id_subject = 4") #4
+    
+    # Обновление названия формы сдачи предмета с id=5 на "Новая форма сдачи"
+    cur.execute("UPDATE submission_form SET name = 'Новая форма сдачи' WHERE id_submission_form = 5") #5
+    
+    # Обновление количества лекционных часов на 30 для учебного плана с id=6
+    cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 30  WHERE id_syllabus = 6") #6
+    
+    # Обновление количества лекционных часов у предмета "математика" на учебном плане специальности "ИБТ"
+    cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 5 WHERE id_speciality = 2 AND id_subject = 3") #7
+    
+    # Обновление количества лабораторных часов и формы сдачи предмета у специальности "СА" для предмета "программирование"
+    cur.execute("UPDATE syllabus SET number_of_laboratory_hours = number_of_laboratory_hours +10 WHERE id_speciality = 5 AND id_subject = 15") #8
+    
+    # # Обновление количества лекционных и практических часов у предмета "информатика" на учебном плане кафедры "Информационный"
+    # cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 5, number_of_practical_hours = number_of_practical_hours + 5 WHERE id_subject = 20 AND  ") #9
+    
+    # Обновить кол-во лекционных часов для всех предметов, где количество лекционных часов больше 30
+    cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 10 WHERE number_of_lecture_hours > 30") #10
+    
+    # Обновить фамилию и имя абитуриента по его идентификатору
+    cur.execute("UPDATE applicants SET name = 'Виктор' AND surname = 'Баранов' WHERE id_applicant = 7") #11
+    
+    #  Обновить название кафедры для всех специальностей, где кафедра имеет id = 1
+    cur.execute("UPDATE departmens SET name = 'Кафедра' WHERE id_departments = 1") #12
+    
+    #Обновить оценку по определенному предмету и форме сдачи для конкретного студента
+    cur.execute("UPDATE study_card SET grade = 5  WHERE submission_form = 'Взятка' AND FIO_student = 'Клименко Олег Юрьевич' ") #13
+    
+    # Обновить название специальности для всех студентов, где специальность имеет id = 2
+    cur.execute("UPDATE study_card SET speciality = 'Специальность' WHERE speciality = (SELECT name FROM specialities WHERE id_speciality = 2)") #14
+    
+    # Обновить все оценки студента с именем "Иван" на предмете "Математика" на значение 5
+    cur.execute("UPDATE study_card SET grade = 2  WHERE FIO_student LIKE 'Иван' AND subjects = 'математика' ") #15
+    
+    # Обновить название факультета на "Факультет информационных технологий" для всех кафедр, относящихся к этому факультету
+    cur.execute("UPDATE SET WHERE") #16
+    
+    # . Обновить количество лабораторных часов на предмете "Физика" для специальности "Физика и информатика" на 30
+    cur.execute("UPDATE SET WHERE") #17
+    
+    # SQL-запросы на удаление данных из БД
+    cur.execute("DELETE FROM applicants WHERE data_postupleniya < '2021-01-01' ") # 1
+    cur.execute("DELETE FROM syllabus WHERE id_speciality IS NULL") # 2
+    cur.execute("DELETE FROM departments WHERE id_faculty IS NULL") # 3
+    cur.execute("DELETE FROM syllabus WHERE id_subject NOT IN (SELECT id_subject FROM syllabus)") # 4
+    cur.execute("DELETE FROM study_card WHERE grade IS NULL") # 5
+    cur.execute("DELETE FROM study_card WHERE subjects = 'математика' AND submission_form = 'Экзамен'") # 6
+    cur.execute("DELETE FROM study_card WHERE speciality IN (SELECT name FROM specialities WHERE id_departments =4)") # 7
+    cur.execute("DELETE FROM study_card WHERE grade = 2 OR grade IS NULL") # 8
