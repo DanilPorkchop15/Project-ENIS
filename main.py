@@ -178,7 +178,7 @@ with sq.connect('deanary.db') as con:
     cur.execute("UPDATE applicants SET name = 'Виктор' AND surname = 'Баранов' WHERE id_applicant = 7") #11
     
     #  Обновить название кафедры для всех специальностей, где кафедра имеет id = 1
-    cur.execute("UPDATE departmens SET name = 'Кафедра' WHERE id_departments = 1") #12
+    cur.execute("UPDATE departments SET name = 'Кафедра' WHERE id_departments = 1") #12
     
     #Обновить оценку по определенному предмету и форме сдачи для конкретного студента
     cur.execute("UPDATE study_card SET grade = 5  WHERE submission_form = 'Взятка' AND FIO_student = 'Клименко Олег Юрьевич' ") #13
