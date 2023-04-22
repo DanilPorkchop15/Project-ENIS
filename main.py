@@ -175,7 +175,7 @@ with sq.connect('deanary.db') as con:
     cur.execute("UPDATE syllabus SET number_of_lecture_hours = number_of_lecture_hours + 10 WHERE number_of_lecture_hours > 30") #10
     
     # Обновить фамилию и имя абитуриента по его идентификатору
-    cur.execute("UPDATE applicants SET name = 'Виктор' AND surname = 'Баранов' WHERE id_applicant = 7") #11
+    cur.execute("UPDATE applicants SET name = 'Виктор', surname = 'Баранов' WHERE id_applicant = 7") #11
     
     #  Обновить название кафедры для всех специальностей, где кафедра имеет id = 1
     cur.execute("UPDATE departments SET name = 'Кафедра' WHERE id_departments = 1") #12
