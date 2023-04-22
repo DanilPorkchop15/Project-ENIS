@@ -1,5 +1,4 @@
 import sqlite3 as sq
-from data_pz_15 import *
 
 with sq.connect('deanary.db') as con:
     cur = con.cursor()
